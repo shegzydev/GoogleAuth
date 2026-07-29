@@ -20,7 +20,7 @@ app.get("/auth/google/callback", async (req, res) => {
       .send("Missing authorization code or state parameter.");
   }
 
-  userAuthCodes[state] = { serverAuthCode: authCode };
+  userAuthCodes[state] = { authCode };
 
   const deepLink = `journeywithin://auth?state=${state}`;
   res.redirect(deepLink);
