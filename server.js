@@ -36,11 +36,9 @@ app.get("/auth/google/callback", async (req, res) => {
 app.post("/api/reset-password", async (req, res) => {
   const { token, password } = req.body;
 
-  console.log(req.body);
-
   try {
     const response = await axios.post(
-      `https://${process.env.PLAYFAB_TITLE_ID}.playfabapi.com/Server/ConfirmPasswordRecovery`,
+      `https://${process.env.PLAYFAB_TITLE_ID}.playfabapi.com/Admin/ResetPassword`,
       {
         Token: token,
         Password: password,
@@ -59,7 +57,6 @@ app.post("/api/reset-password", async (req, res) => {
     });
   } catch (err) {
     if (err.response) {
-      console.log(err.response);
       return res.status(400).json({
         success: false,
         message:
