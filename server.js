@@ -2,6 +2,9 @@ const express = require("express");
 const axios = require("axios");
 const app = express();
 
+app.use(express.json());
+app.use(express.static("public"));
+
 const userAuthCodes = {};
 
 // Health‑check / landing page so Render sees a 200 on '/'
@@ -24,6 +27,49 @@ app.get("/auth/google/callback", async (req, res) => {
 
   const deepLink = `journeywithin://auth?state=${state}`;
   res.redirect(deepLink);
+});
+
+//Reset Password
+app.post("/api/reset-password", async (req, res) => {
+  const { token, password } = req.body;
+
+  try {
+    const response = await axios.post(
+      `https://${process.env.PLAYFAB_TITLE_ID}.playfabapi.com/Server/ConfirmPasswordRecovery`,
+      {
+        Token: token,
+        Password: password,
+      },
+      {
+        headers: {
+          "X-SecretKey": process.env.PLAYFAB_SECRET_KEY,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    return res.json({
+      success: true,
+      message: "Password successfully reset.",
+    });
+  } catch (err) {
+    if (err.response) {
+      return res.status(400).json({
+        success: false,
+        message:
+          err.response.data.errorMessage ||
+          err.response.data.error ||
+          "Password reset failed.",
+      });
+    }
+
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
+  }
 });
 
 // Endpoint for Unity to retrieve the profile data by state
